@@ -30,12 +30,62 @@ public abstract class Exceptions
 		}
 	}
 	
+	/**
+	 * This exception indicates that an object of an identity different from an
+	 * array is encountered. Its main library usage appears in dermatj.utils.seq.Array. 
+	 */
+	public static class NoneArrayException extends RuntimeException
+	{
+		/**
+		 * Identification for NoneArrayExceptions. 
+		 */
+		public static final long serialVersionUID = 2L;
+
+		public NoneArrayException()
+		{
+			super(); 
+		}
+		
+		public NoneArrayException(String mess)
+		{
+			super(mess); 
+		}
+		
+		public NoneArrayException(Exception ori)
+		{
+			super(ori); 
+		}
+	}
+	
+	public static class SizeMismatchException extends RuntimeException
+	{
+		/**
+		 * Identification for SizeMismatchExceptions. 
+		 */
+		public static final long serialVersionUID = 3L;
+
+		public SizeMismatchException()
+		{
+			super(); 
+		}
+		
+		public SizeMismatchException(String mess)
+		{
+			super(mess); 
+		}
+		
+		public SizeMismatchException(Exception ori)
+		{
+			super(ori); 
+		}
+	}
+	
 	public static class DuplicateValueException extends RuntimeException
 	{
 		/**
 		 * The identification for DuplicateValueExceptions. 
 		 */
-		public static final long serialVersionUID = 2L;
+		public static final long serialVersionUID = 4L;
 
 		public DuplicateValueException()
 		{
