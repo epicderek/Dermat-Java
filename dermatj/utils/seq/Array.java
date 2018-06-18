@@ -2,7 +2,14 @@ package dermatj.utils.seq;
 
 import static dermatj.utils.excs.Exceptions.*; 
 import dermatj.utils.seq.container.map.Maps; 
-import dermatj.utils.seq.container.map.DuoMap;  
+import dermatj.utils.seq.container.map.DuoMap;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map; 
+import java.util.Iterator; 
+
 
 public abstract class Array 
 {	
@@ -14,7 +21,6 @@ public abstract class Array
 	 * The associated primitive types with their one dimensional primitive array counterparts. 
 	 */
 	public static final DuoMap<Class<?>,Class<?>> PMATYPES = new DuoMap<Class<?>,Class<?>>(); 
-	
 	
 	/**
 	 * The number of dashes printed when the Array.printDash method is invoked. 
@@ -171,6 +177,70 @@ public abstract class Array
 		return false; 
 	}
 	
+	private static <T> void printCollection(Collection<T> col)
+	{
+		Iterator<T> ite = col.iterator(); 
+		System.out.print("[");
+		for(int i=0; i<col.size(); i++)
+		{
+			//Get the next item. 
+			T item = ite.next(); 
+			//If an array is present. 
+			if(item.getClass().getComponentType()!=null)
+				helpArray((Object[])item); 
+			//If a collection is nested. 
+			else if(item instanceof Collection)
+				printCollection((Collection<?>)item); 
+			//If a map is present. 
+			else if(item instanceof Map)
+				printMap((Map<?,?>)item);
+			else
+				System.out.print(item); 
+			if(i==col.size()-1)
+				System.out.print("]"); 
+			else
+				System.out.print(", ");
+		}
+	}
+	
+	private static <K,V> void printMap(Map<K,V> map)
+	{
+		System.out.print("{"); 
+		Iterator<Map.Entry<K,V>> ite = map.entrySet().iterator(); 
+		for(int i=0; i<map.size(); i++)
+		{
+			//Get the next entry. 
+			Map.Entry<K,V> ent = ite.next(); 
+			//If a map is nested as the key of the entry. 
+			if(ent.getKey() instanceof Map)
+				printMap((Map<?,?>)ent.getKey()); 
+			//If an array is present. 
+			else if(ent.getKey().getClass().getComponentType()!=null)
+				helpArray((Object[])ent.getKey()); 
+			//If a collection is present. 
+			else if(ent.getKey() instanceof Collection)
+				printCollection((Collection<?>)ent.getKey()); 
+			else
+				System.out.print(ent.getKey());
+			System.out.print("=");
+			//If a map is nested as the value of the entry. 
+			if(ent.getValue() instanceof Map)
+				printMap((Map<?,?>)ent.getValue()); 
+			//If an array is present. 
+			else if(ent.getValue().getClass().getComponentType()!=null)
+				helpArray((Object[])ent.getValue()); 
+			//If a collection is present. 
+			else if(ent.getValue() instanceof Collection)
+				printCollection((Collection<?>)ent.getValue()); 
+			else
+				System.out.print(ent.getValue());
+			if(i==map.size()-1)
+				System.out.print("}"); 
+			else
+				System.out.print(", ");
+		}
+	}
+	
 	/**
 	 * Print the variable argument list in a line without wrapping it in an array. 
 	 * For data structures, including arrays, it provides a deep printing in which 
@@ -181,17 +251,17 @@ public abstract class Array
 	@SafeVarargs
 	public static void printline(Object... args)
 	{
-		for(Object holder: args)
+		for(Object item: args)
 		{
-			if(holder instanceof Object[])
+			if(item instanceof Object[])
 			{
-				helpArray((Object[])holder); 
+				helpArray((Object[])item); 
 				System.out.print(" ");
 			}
-			else if(printPrimitiveArray(holder))
-				;
+			else if(printPrimitiveArray(item))
+				; 
 			else 
-				System.out.print(holder+" ");
+				System.out.print(item+" ");
 		}
 		System.out.println();
 	}
@@ -301,6 +371,20 @@ public abstract class Array
 			java.lang.reflect.Array.set(arr,index+i,java.lang.reflect.Array.get(fill,i));
 	}
 	
+	public static <T> void addAll(T[] arr, int index, Collection<T> holder)
+	{
+		if(arr.length-index<holder.size())
+			throw new SizeMismatchException("More Elements than Can Be Held by the Given Array!"); 
+		for(T item: holder)
+			arr[index++] = item;
+	}
+	
+	public static <T> void clearAll(ArrayList<T> list, int start, int end)
+	{
+		for(int i=0; i<end-start; i++)
+			list.remove(start); 
+	}
+	
 	/**
 	 * Print a dashed line of the number of segments given by the customary public Array.dashNum field. 
 	 */
@@ -379,18 +463,25 @@ public abstract class Array
 	public static Object wrap(Object obj)
 	{
 		if(!isPrimitiveArray(obj))
-			throw new NonePrimitiveArrayException("The Given Argument is not a Primitive Array!");  
+			throw new NonePrimitiveArrayException("The Given Argument is not a Primitive Array!"); 
+		//Clear the helper container. 
+		nestedArrs.clear(); 
 		return wrapping(obj); 
 	}
+	
+	/**
+	 * A helper list to the Array.wrapping method that contains all the arrays created of the next nested level. 
+	 */
+	private static ArrayList<Object> nestedArrs = new ArrayList<Object>(); 
 	
 	/**
 	 * Wrap the given primitive array object of arbitrary dimensions in an array object of the
 	 * same dimensions but of the wrapper type instead of the primitive without first checking 
 	 * if the given object is a primitive array. The returned array should be casted by the user 
-	 * if the compile time reference is significant. Warnings, if generated, should be suppressed 
-	 * with knowledge of the correctness of this method. This method is implemented with reflection 
-	 * for generality; if minute efficiency is demanded, with the proper knowledge of the peculiar
-	 * type of the array, wrap that array manually. 
+	 * if the compile time reference is significant. Warnings, if generated, should be suppressed£»
+	 * and type to be casted if necessary. This method is implemented with reflection for generality; 
+	 * if minute efficiency is demanded, with the proper knowledge of the peculiar type of the array, 
+	 * wrap that array manually. 
 	 * @param obj The primitive array of some dimensions to be wrapped in an array of the same dimensions of the wrapper type. 
 	 * @return The array object of the wrapper type correspondent to the primitive type of the array given. 
 	 */
@@ -400,6 +491,8 @@ public abstract class Array
 		Class<?> type = obj.getClass(); 
 		//The superficial length of this array, the dimension of this level.  
 		int length = java.lang.reflect.Array.getLength(obj); 
+		//The first index available after storage of parallel arrays of this nested level. 
+		int start = nestedArrs.size(); 
 		Object wrapped;
 		//Base case of a 1D primitive array. 
 		if(PMATYPES.containsValue(type))
@@ -408,13 +501,20 @@ public abstract class Array
 			wrapped = java.lang.reflect.Array.newInstance(PMTYPES.get(type.getComponentType()),length); 
 			//Fill. 
 			addAll(wrapped,0,obj); 
+			//Return this 1D array to be included in its upper level if applicable. 
 			return wrapped; 
 		}
-		//Still layers nested. 
-		wrapped = java.lang.reflect.Array.newInstance(type.getComponentType(),length); 
-		//Access each sub-array and recursively solve for each such array. 
+		//Still layers nested, recursively solve for each nested array.  
 		for(int i=0; i<length; i++)
-			java.lang.reflect.Array.set(wrapped,i,wrapping(java.lang.reflect.Array.get(obj,i))); 
+			nestedArrs.add(wrapping(java.lang.reflect.Array.get(obj,i)));  
+		//Create new array based on nested type captured; the last element, the most recent, is used.   
+		wrapped = java.lang.reflect.Array.newInstance(nestedArrs.get(nestedArrs.size()-1).getClass(),length);     
+		//Access each sub-array and assign it. 
+		int index = 0; 
+		for(int i=start; i<nestedArrs.size(); i++)
+			java.lang.reflect.Array.set(wrapped,index++,nestedArrs.get(i));  
+		//Discard the computed sub-arrays of this level that are not of interest to the upper level. 
+		clearAll(nestedArrs,start,nestedArrs.size()); 
 		return wrapped; 
 	}
 	
@@ -423,8 +523,11 @@ public abstract class Array
 	
 	public static void main(String[] args) 
 	{	
-		//printline(wrap(new int[][]{{1,2,3,4,5}}));
-		printArray(copy(new Integer[][]{{1,2,3,4,5}}));
+		Map<Integer,Integer> tester = new HashMap<Integer,Integer>(); 
+		tester.put(0,1);
+		tester.put(1,2);
+		printMap(tester);
+		 
 	}
 
 }
