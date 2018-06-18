@@ -177,6 +177,11 @@ public abstract class Array
 		return false; 
 	}
 	
+	/**
+	 * Print potentially nested Collection with Collections, Maps, and Arrays in the standard format
+	 * as for arrays. 
+	 * @param col The collection to be printed. 
+	 */
 	private static <T> void printCollection(Collection<T> col)
 	{
 		Iterator<T> ite = col.iterator(); 
@@ -203,6 +208,11 @@ public abstract class Array
 		}
 	}
 	
+	/**
+	 * Print the potentially nested Map with Maps, Collections, and Arrays in its entries in the standard
+	 * format as for a Map.  
+	 * @param map The map to be printed. 
+	 */
 	private static <K,V> void printMap(Map<K,V> map)
 	{
 		System.out.print("{"); 
@@ -242,27 +252,46 @@ public abstract class Array
 	}
 	
 	/**
-	 * Print the variable argument list in a line without wrapping it in an array. 
-	 * For data structures, including arrays, it provides a deep printing in which 
-	 * the base level of the container, or multidimensional array, is exposed and printed. 
-	 * Primitive arrays are printed in the standard format as of object arrays. 
+	 * Print the variable argument list without wrapping it in an array on the current line, without
+	 * commas separating two elements but spaces. For data structures, including arrays, it provides 
+	 * a deep printing in which the base level of the container, or multidimensional array, is exposed 
+	 * and printed. Primitive arrays are printed in the standard format as of object arrays. 
+	 * @param args The variable argument list to be printed. 
+	 */
+	@SafeVarargs
+	public static void print(Object... args)
+	{
+		for(Object item: args)
+		{
+			//If an array is present. 
+			if(item.getClass().getComponentType()!=null)
+			{
+				helpArray((Object[])item); 
+				System.out.print(" ");
+			}
+			//If a collection is present. 
+			else if(item instanceof Collection)
+				printCollection((Collection<?>)item); 
+			//If a map is present. 
+			else if(item instanceof Map)
+				printMap((Map<?,?>)item); 
+			else 
+				System.out.print(item+" ");
+		}
+		System.out.println();
+	}
+	
+	/**
+	 * Print the variable argument list in a line without wrapping it in an array and separating
+	 * items with commas but with spaces. For data structures, including arrays, it provides a deep 
+	 * printing in which the base level of the container, or multidimensional array, is exposed and 
+	 * printed. Primitive arrays are printed in the standard format as of object arrays. 
 	 * @param args The variable argument list to be printed in a line. 
 	 */
 	@SafeVarargs
 	public static void printline(Object... args)
 	{
-		for(Object item: args)
-		{
-			if(item instanceof Object[])
-			{
-				helpArray((Object[])item); 
-				System.out.print(" ");
-			}
-			else if(printPrimitiveArray(item))
-				; 
-			else 
-				System.out.print(item+" ");
-		}
+		print(args); 
 		System.out.println();
 	}
 	
@@ -287,24 +316,15 @@ public abstract class Array
 		}
 		if(input.length==1) 
 		{
-			if(input[0] instanceof Object[])
-				helpArray((Object[])input[0]); 
-			else if(printPrimitiveArray(input[0]))
-				; 
-			else
-				System.out.print("["+input[0]+"]"); 
-			System.out.println();
+			boolean isArray = input[0].getClass().getComponentType()!=null; 
+			//If not an array, wrap it as an array. 
+			print(isArray?"":"[",input[0],isArray?"":"]","\n");
 			return; 
 		}
 		System.out.print("[");
 		for(int i=0; i<input.length; i++)
 		{
-			if(input[i] instanceof Object[])
-				helpArray((Object[])input[i]); 
-			else if(printPrimitiveArray(input[i])) 
-				;
-			else
-				System.out.print(input[i]); 
+			print(input[i]); 
 			if(i==input.length-1)
 				System.out.print("]");
 			else
@@ -328,6 +348,10 @@ public abstract class Array
 				helpArray((Object[])input[i]); 
 			else if(printPrimitiveArray(input[i]))
 				; 
+			else if(input[i] instanceof Collection)
+				printCollection((Collection<?>)input[i]);
+			else if(input[i] instanceof Map)
+				printMap((Map<?,?>)input[i]); 
 			else
 				System.out.print(input[i]);
 			if(i==input.length-1)
@@ -526,8 +550,7 @@ public abstract class Array
 		Map<Integer,Integer> tester = new HashMap<Integer,Integer>(); 
 		tester.put(0,1);
 		tester.put(1,2);
-		printMap(tester);
-		 
+		printMap(tester); 
 	}
 
 }
