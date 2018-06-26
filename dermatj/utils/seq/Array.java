@@ -6,7 +6,6 @@ import dermatj.utils.seq.container.map.DuoMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map; 
 import java.util.Iterator; 
 
@@ -330,7 +329,14 @@ public abstract class Array
 		{
 			boolean isArray = input[0].getClass().getComponentType()!=null; 
 			//If not an array, wrap it as an array. 
-			print(isArray?"":"[",input[0],isArray?"":"]","\n");
+			if(isArray)
+				print(input[0]); 
+			else
+			{
+				System.out.print("[");
+				print(input[0]);
+				System.out.println("]");
+			}
 			return; 
 		}
 		System.out.print("[");
@@ -517,16 +523,17 @@ public abstract class Array
 	 * if the compile time reference is significant. Warnings, if generated, should be suppressed£»
 	 * and type to be casted if necessary. This method is implemented with reflection for generality; 
 	 * if minute efficiency is demanded, with the proper knowledge of the peculiar type of the array, 
-	 * wrap that array manually. 
-	 * @param obj The primitive array of some dimensions to be wrapped in an array of the same dimensions of the wrapper type. 
+	 * wrap that array manually. This casting provides a referential deep copy in that the most 
+	 * fundamental elements are copied by their references.
+	 * @param arr The primitive array of some dimensions to be wrapped in an array of the same dimensions of the wrapper type. 
 	 * @return The array object of the wrapper type correspondent to the primitive type of the array given. 
 	 */
-	private static Object wrapping(Object obj)
+	private static Object wrapping(Object arr)
 	{
 		//Type of this array. 
-		Class<?> type = obj.getClass(); 
+		Class<?> type = arr.getClass(); 
 		//The superficial length of this array, the dimension of this level.  
-		int length = java.lang.reflect.Array.getLength(obj); 
+		int length = java.lang.reflect.Array.getLength(arr); 
 		//The first index available after storage of parallel arrays of this nested level. 
 		int start = nestedArrs.size(); 
 		Object wrapped;
@@ -536,13 +543,13 @@ public abstract class Array
 			//Create and fill the 1D primitive array into its wrapper type. 
 			wrapped = java.lang.reflect.Array.newInstance(PMTYPES.get(type.getComponentType()),length); 
 			//Fill. 
-			addAll(wrapped,0,obj); 
+			addAll(wrapped,0,arr); 
 			//Return this 1D array to be included in its upper level if applicable. 
 			return wrapped; 
 		}
 		//Still layers nested, recursively solve for each nested array.  
 		for(int i=0; i<length; i++)
-			nestedArrs.add(wrapping(java.lang.reflect.Array.get(obj,i)));  
+			nestedArrs.add(wrapping(java.lang.reflect.Array.get(arr,i)));  
 		//Create new array based on nested type captured; the last element, the most recent, is used.   
 		wrapped = java.lang.reflect.Array.newInstance(nestedArrs.get(nestedArrs.size()-1).getClass(),length);     
 		//Access each sub-array and assign it. 
@@ -554,15 +561,75 @@ public abstract class Array
 		return wrapped; 
 	}
 	
+	/**
+	 * Cast an array of a wrapper time of any dimension to its counterpart of the primitive type. The
+	 * returned array should be casted to the corresponding type manually by the user. This method is 
+	 * implemented by reflection for generality; thus if minute efficiency is concerned for arrays of
+	 * supreme size or dimensions, manual casting may be desired. A NoneWrapperTypeArray exception is 
+	 * thrown if the given object type of array does not have a primitive counterpart. This casting 
+	 * provides a referential deep copy in that the most fundamental elements are copied by their 
+	 * references. 
+	 * @param arr The wrapper array to be casted to its primitive counterpart. 
+	 * @return
+	 */
+	public static <T> Object cast(T[] arr)
+	{
+		return casting((Object)arr);
+	}
+	
+	/**
+	 * Wrap the given wrapper type array object of arbitrary dimensions in an array object of the
+	 * same dimensions but of the primitive type instead of the wrapper without first checking 
+	 * if the given object is a primitive array. The returned array should be casted by the user 
+	 * if the compile time reference is significant. Warnings, if generated, should be suppressed£»
+	 * and type to be casted if necessary. This method is implemented with reflection for generality; 
+	 * if minute efficiency is demanded, with the proper knowledge of the peculiar type of the array, 
+	 * wrap that array manually. 
+	 * @param arr The wrapper type array of some dimensions to be wrapped in an array of the same dimensions of the primitive type. 
+	 * @return The array object of the primitive type correspondent to the wrapper type of the array given. 
+	 */
+	private static Object casting(Object arr)
+	{
+		//The type of the objects contained in this array.. 
+		Class<?> componentType = arr.getClass().getComponentType(); 
+		//The length of the array. 
+		int length = java.lang.reflect.Array.getLength(arr); 
+		//The casted array. 
+		Object casted; 
+		//The first index available after storage of parallel arrays of this nested level. 
+		int start = nestedArrs.size(); 
+		//If the object is a 1D array. 
+		if(componentType.getComponentType()==null)
+		{
+			if(!PMTYPES.containsValue(componentType))
+				throw new NoneWrapperArrayException("Given Array Not of a Wrapper Type!");
+			//Create the 1D array. 
+			casted = java.lang.reflect.Array.newInstance(PMTYPES.getKey(componentType),length); 
+			//Initialize it with casted identical contents. 
+			addAll(casted,0,arr); 
+			//Return this 1D array for possible upper level processing. 
+			return casted; 
+		}
+		//Still layers nested, recursively solve for each nested array.  
+		for(int i=0; i<length; i++)
+			nestedArrs.add(casting(java.lang.reflect.Array.get(arr,i)));  
+		//Create new array based on nested type captured; the last element, the most recent, is used.   
+		casted = java.lang.reflect.Array.newInstance(nestedArrs.get(nestedArrs.size()-1).getClass(),length);     
+		//Access each sub-array and assign it. 
+		int index = 0; 
+		for(int i=start; i<nestedArrs.size(); i++)
+			java.lang.reflect.Array.set(casted,index++,nestedArrs.get(i));  
+		//Discard the computed sub-arrays of this level that are not of interest to the upper level. 
+		clearAll(nestedArrs,start,nestedArrs.size()); 
+		return casted; 
+	}
+	
 	
 	
 	
 	public static void main(String[] args) 
 	{	
-		Map<Integer,Integer> tester = new HashMap<Integer,Integer>(); 
-		tester.put(0,1);
-		tester.put(1,2);
-		printMap(tester); 
+		
 	}
 
 }
