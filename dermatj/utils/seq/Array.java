@@ -192,7 +192,11 @@ public abstract class Array
 			T item = ite.next(); 
 			//If an array is present. 
 			if(item.getClass().getComponentType()!=null)
-				helpArray((Object[])item); 
+				//If a 1D primitive array. 
+				if(printPrimitiveArray(item))
+					;
+				else
+					helpArray((Object[])item); 
 			//If a collection is nested. 
 			else if(item instanceof Collection)
 				printCollection((Collection<?>)item); 
@@ -225,8 +229,12 @@ public abstract class Array
 			if(ent.getKey() instanceof Map)
 				printMap((Map<?,?>)ent.getKey()); 
 			//If an array is present. 
-			else if(ent.getKey().getClass().getComponentType()!=null)
-				helpArray((Object[])ent.getKey()); 
+			else if(ent.getKey().getClass().getComponentType()!=null) 
+				//If a 1D primitive array. 
+				if(printPrimitiveArray(ent.getKey()))
+					;
+				else
+					helpArray((Object[])ent.getKey()); 
 			//If a collection is present. 
 			else if(ent.getKey() instanceof Collection)
 				printCollection((Collection<?>)ent.getKey()); 
@@ -266,7 +274,11 @@ public abstract class Array
 			//If an array is present. 
 			if(item.getClass().getComponentType()!=null)
 			{
-				helpArray((Object[])item); 
+				//If a 1D primitive array is encountered. 
+				if(printPrimitiveArray(item))
+					;
+				else
+					helpArray((Object[])item); 
 				System.out.print(" ");
 			}
 			//If a collection is present. 
