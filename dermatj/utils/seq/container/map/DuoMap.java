@@ -19,6 +19,13 @@ import java.util.Iterator;
  * entries presently contained in this DuoMap with different keys to that of this entry, 
  * a dermatj.utils.excs.Exceptions.DuplicateValueException is thrown. This exception is a RuntimeException, 
  * and can therefore be ignored if handling if unnecessary or can be attributed to a programming error. 
+ * As specific type information of a Map being a dermatj.utils.seq.container.map.DuoMap is essential for
+ * invoking the reverse access from values to keys, when such a Map is used, its specific type information
+ * should not be abstracted. 
+ * <p>
+ * To set this Map unmodifiable, invoke the DuoMap.setUnmodifiable method. Once set to unmodifiable, 
+ * it cannot generally be reset. Whereas classes in the same package, or derived classes, may have 
+ * access to the variable unmodifiable. 
  * @author Derek
  *
  * @param <K> Base type of keys. 
@@ -26,6 +33,10 @@ import java.util.Iterator;
  */
 public class DuoMap<K,V> extends AbstractMap<K,V>
 {
+	/**
+	 * Whether this DuoMap can be modified. 
+	 */
+	protected boolean unmodifiable = false; 
 	/**
 	 * Forward normal access of key to value. 
 	 */
@@ -86,6 +97,9 @@ public class DuoMap<K,V> extends AbstractMap<K,V>
 	 */
 	public V put(K key, V val) throws DuplicateValueException
 	{
+		//If currently at the state in which no modification of entries are allowed. 
+		if(unmodifiable)
+			throw new ItemUnmodifiableException("This DuoMap Is Unmodifiable!"); 
 		//If the key is not already present. 
 		if(!forward.containsKey(key))
 		{
@@ -137,7 +151,31 @@ public class DuoMap<K,V> extends AbstractMap<K,V>
 	 */
 	public V remove(Object key)
 	{
-		return forward.remove(key); 
+		//If currently at the state in which no modification of entries are allowed. 
+		if(unmodifiable)
+			throw new ItemUnmodifiableException("This DuoMap Is Unmodifiable!"); 
+		V val = forward.remove(key); 
+		if(val==null)
+			return null; 
+		backward.remove(val); 
+		return val; 
+	}
+	
+	/**
+	 * Remove the entry of the given value if it be present and return the value associated with this
+	 * present value in the entry. Return null otherwise. 
+	 * @return The key associated with this value if the value is present, null otherwise.  
+	 */
+	public K removeValue(V val)
+	{
+		//If currently at the state in which no modification of entries are allowed. 
+		if(unmodifiable)
+			throw new ItemUnmodifiableException("This DuoMap Is Unmodifiable!"); 
+		K key = backward.remove(val); 
+		if(key==null)
+			return null; 
+		forward.remove(key); 
+		return key; 
 	}
 	
 	/**
@@ -181,8 +219,17 @@ public class DuoMap<K,V> extends AbstractMap<K,V>
 					{
 						return forward.size(); 
 					}
-					
 				}; 
+	}
+	
+	/**
+	 * Set this DuoMap to the state of unmodifiable, which indicates that no entries shall be modified
+	 * by insertion or removal. Hence, the putting and removing are disabled. In case that it is desired
+	 * that the state be reset to modifiable again, use package access to manipulate . 
+	 */
+	public void setUnmodifiable()
+	{
+		unmodifiable = true; 
 	}
 	
 	public static void main(String[] args) 

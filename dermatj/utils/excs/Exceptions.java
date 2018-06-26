@@ -84,6 +84,10 @@ public abstract class Exceptions
 		}
 	}
 	
+	/**
+	 * This exception indicates the mismatch of size of to objects or systems in which the consistency
+	 * of sizes are desired. 
+	 */
 	public static class SizeMismatchException extends RuntimeException
 	{
 		/**
@@ -107,6 +111,10 @@ public abstract class Exceptions
 		}
 	}
 	
+	/**
+	 * This exception indicates the presence of two duplicate entities by the applied means of comparison. 
+	 * It is used, for example, in the dermatj.utils.seq.container.map.DuoMap. 
+	 */
 	public static class DuplicateValueException extends RuntimeException
 	{
 		/**
@@ -130,9 +138,35 @@ public abstract class Exceptions
 		}
 	}
 	
+	/**
+	 * This exception indicates that an item that is currently, or permanently, at the unmodifiable 
+	 * state is being requested to be modified. 
+	 */
+	public static class ItemUnmodifiableException extends RuntimeException
+	{
+		/**
+		 * The identification for ItemUnmodifiableExceptions. 
+		 */
+		public static final long serialVersionUID = 6L;
+
+		public ItemUnmodifiableException()
+		{
+			super(); 
+		}
+		
+		public ItemUnmodifiableException(String mess)
+		{
+			super(mess); 
+		}
+		
+		public ItemUnmodifiableException(Exception ori)
+		{
+			super(ori); 
+		}
+	}
+	
 	public static void main(String[] args) 
 	{
-		// TODO Auto-generated method stub
 
 	}
 
