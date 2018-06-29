@@ -39,7 +39,7 @@ public abstract class Array
 				new Class<?>[] 
 		{boolean.class,byte.class,char.class,short.class,int.class,long.class,float.class,double.class},
 		 		new Class<?>[]
-		{boolean[].class,byte[].class,char[].class,short[].class,int[].class,long[].class,float[].class,double[].class}); 
+		{boolean[].class,byte[].class,char[].class,short[].class,int[].class,long[].class,float[].class,double[].class});  
 		
 	}
 	
@@ -413,6 +413,16 @@ public abstract class Array
 			java.lang.reflect.Array.set(arr,index+i,java.lang.reflect.Array.get(fill,i));
 	}
 	
+	/**
+	 * Fill the given array starting from the given starting index with the elements given in the 
+	 * collection of the same type. This method will generate an exception if the target array is 
+	 * filled before the filling arguments are exhausted. It will not throw an exception if the length 
+	 * of the array starting from the starting index is bigger than the size of the collection. 
+	 * 1D primitive arrays cannot be filled in by this method.  
+	 * @param arr The array to be filled. 
+	 * @param index The starting index to fill the array. 
+	 * @param fill The collection to fill the array with starting from its first index. 
+	 */
 	public static <T> void addAll(T[] arr, int index, Collection<T> holder)
 	{
 		if(arr.length-index<holder.size())
@@ -421,6 +431,32 @@ public abstract class Array
 			arr[index++] = item;
 	}
 	
+	/**
+	 * Fill the given array under object reference starting from the given starting index with the elements given in the 
+	 * collection of the same type. This method will generate an exception if the target array is 
+	 * filled before the filling arguments are exhausted. It will not throw an exception if the length 
+	 * of the array starting from the starting index is bigger than the size of the collection. 
+	 * 1D primitive arrays cannot be filled in by this method.  
+	 * @param arr The array to be filled. 
+	 * @param index The starting index to fill the array. 
+	 * @param fill The argument array to fill the array with starting from its first index. Arguments of wrong types generate exceptions. 
+	 */
+	public static <T> void addAll(Object arr, int index, Collection<T> holder)
+	{
+		if(arr.getClass().getComponentType()==null)
+			throw new NoneArrayException("The First Argument not of Type Array!");
+		if(java.lang.reflect.Array.getLength(arr)-index<holder.size())
+			throw new SizeMismatchException("More Elements than Can Be Held by the Given Array!"); 
+		for(T item: holder)
+			java.lang.reflect.Array.set(arr,index++,item);
+	}
+	
+	/**
+	 * Clear the given ArrayList from the starting index to the ending index given. 
+	 * @param list The ArrayList whose elements are to be selectively cleared. 
+	 * @param start The starting index of removal. 
+	 * @param end The ending index of removal. 
+	 */
 	public static <T> void clearAll(ArrayList<T> list, int start, int end)
 	{
 		for(int i=0; i<end-start; i++)
@@ -485,7 +521,14 @@ public abstract class Array
 		return wrapped; 
 	}
 	
-	public static void dimensions(Object[] tar)
+	/**
+	 * Compute the dimensions of a regular array, that is the successive superficial sizes of 
+	 * each level. For example, of a three dimensional array, the first of the dimensions returned
+	 * would be the number of two dimensional arrays it contains, the second would be the number 
+	 * @param arr
+	 * @return 
+	 */
+	public static void dimensions(Object arr)
 	{
 		
 	}
@@ -506,8 +549,6 @@ public abstract class Array
 	{
 		if(!isPrimitiveArray(obj))
 			throw new NonePrimitiveArrayException("The Given Argument is not a Primitive Array!"); 
-		//Clear the helper container. 
-		nestedArrs.clear(); 
 		return wrapping(obj); 
 	}
 	
@@ -570,7 +611,7 @@ public abstract class Array
 	 * provides a referential deep copy in that the most fundamental elements are copied by their 
 	 * references. 
 	 * @param arr The wrapper array to be casted to its primitive counterpart. 
-	 * @return
+	 * @return The primitive counterpart to this given wrapper array. 
 	 */
 	public static <T> Object cast(T[] arr)
 	{
@@ -624,8 +665,51 @@ public abstract class Array
 		return casted; 
 	}
 	
+	/**
+	 * Perform linear search on the given 1D object array of the equivalent of the given target element,
+	 * based on the Object.equals method, of the nth occurrence as given by the argument variable. If 
+	 * an element of the aforementioned qualities exist in the array, the index of the element in the
+	 * array is returned, -1 otherwise, which indicates the absence under the given condition of occurrence. 
+	 * @param arr The array whose elements are to be searched of the target element. 
+	 * @param tar The target element whose equivalent is to be searched for in the given array. 
+	 * @param occ The nth occurrence of the target element in the array to be searched. 
+	 * @return The index of the element that satisfies equality and occurrence order, -1 otherwise. 
+	 */
+	public static int lSearch(Object[] arr, Object tar, int occ)
+	{ 
+		//The count of the occurrences of the given target item in the given array. 
+		int occCount = 0; 
+		for(int i=0; i<arr.length; i++)
+			if(arr[i].equals(tar))
+				if(++occCount==occ)
+					return i; 
+				else 
+					;
+		return -1; 		
+	}
 	
-	
+	/**
+	 * Perform linear search on the given 1D primitive array of the equivalent of the given target element,
+	 * based on the Object.equals method, of the nth occurrence as given by the argument variable. If 
+	 * an element of the aforementioned qualities exist in the array, the index of the element in the
+	 * array is returned, -1 otherwise, which indicates the absence under the given condition of occurrence. 
+	 * @param arr The array whose elements are to be searched of the target element. 
+	 * @param tar The target element whose equivalent is to be searched for in the given array. 
+	 * @param occ The nth occurrence of the target element in the array to be searched. 
+	 * @return The index of the element that satisfies equality and occurrence order, -1 otherwise.
+	 */
+	public static int lSearch(Object arr, Object tar, int occ)
+	{
+		//The count of the occurrences of the given target item in the given array. 
+		int occCount = 0; 
+		for(int i=0; i<java.lang.reflect.Array.getLength(arr); i++)
+			if(java.lang.reflect.Array.get(arr,i).equals(tar))
+				if(++occCount==occ)
+					return i; 
+				else 
+					;
+		return -1;
+	}
 	
 	public static void main(String[] args) 
 	{	
