@@ -451,6 +451,42 @@ public abstract class Array
 			java.lang.reflect.Array.set(arr,index++,item);
 	}
 	
+	@SafeVarargs
+	public static <T> T[] mergeArray(T[]... arrs)
+	{
+		//Length of the lengths of arrays. 
+		int length = 0; 
+		for(T[] arr: arrs)
+			length += arr.length; 
+		//Create new array of the incremented length of all element arrays. 
+		@SuppressWarnings("unchecked")
+		T[] mergedArr = (T[])java.lang.reflect.Array.newInstance(arrs[0].getClass(),length); 
+		//The counter that iterates the indices of the newly created merged array. 
+		int counter = 0; 
+		//Iterate and fill the elements in the order appeared of the array and its elements. 
+		for(T[] arr: arrs)
+			for(T item: arr)  
+				mergedArr[counter++] = item; 
+		return mergedArr; 			
+	}
+	
+	public static Object mergeArray(Object... arrs)
+	{
+		//Length of the lengths of arrays. 
+		int length = 0; 
+		for(Object arr: arrs)
+			length += java.lang.reflect.Array.getLength(arr); 
+		//Create new array of the incremented length of all element arrays. 
+		Object mergedArr = java.lang.reflect.Array.newInstance(arrs[0].getClass(),length); 
+		//The counter that iterates the indices of the newly created merged array. 
+		int counter = 0; 
+		//Iterate and fill the elements in the order appeared of the array and its elements. 
+		for(Object arr: arrs)  
+			for(int i=0; i<java.lang.reflect.Array.getLength(arr); i++)
+				java.lang.reflect.Array.set(arr,counter++,java.lang.reflect.Array.get(arr,i)); 
+		return mergedArr; 			
+	}
+	
 	/**
 	 * Clear the given ArrayList from the starting index to the ending index given. 
 	 * @param list The ArrayList whose elements are to be selectively cleared. 
