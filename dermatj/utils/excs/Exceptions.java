@@ -165,6 +165,30 @@ public abstract class Exceptions
 		}
 	}
 	
+	public static class InvalidArgumentException extends RuntimeException
+	{
+		/**
+		 * An identifier of InvalidArgumentException. 
+		 */
+		private static final long serialVersionUID = 7;
+		
+		public InvalidArgumentException()
+		{
+			super(); 
+		}
+		
+		public InvalidArgumentException(String mess)
+		{
+			super(mess); 
+		}
+		
+		public InvalidArgumentException(Exception ori)
+		{
+			super(ori); 
+		}
+		
+	}
+	
 	public static void main(String[] args) 
 	{
 
