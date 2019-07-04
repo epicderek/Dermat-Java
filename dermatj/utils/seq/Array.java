@@ -4,10 +4,7 @@ import static dermatj.utils.excs.Exceptions.*;
 import dermatj.utils.seq.container.map.Maps; 
 import dermatj.utils.seq.container.map.DuoMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map; 
-import java.util.Iterator; 
+import java.util.*;
 
 
 public abstract class Array 
@@ -72,7 +69,7 @@ public abstract class Array
 	/**
 	 * Print the suspect primitive array if so, that is to first check whether the object is a
 	 * one dimensional primitive array, then print such array if so. The result of printing, whether
-	 * printed, is shown by the returned boolean value¡ªtrue for printed, false for not. 
+	 * printed, is shown by the returned boolean valueï¿½ï¿½true for printed, false for not. 
 	 * @param obj The suspect primitive array. 
 	 * @return true if the object is indeed a primitive array and is printed, false otherwise. 
 	 */
@@ -308,7 +305,7 @@ public abstract class Array
 	
 	/**
 	 * Print the given argument list of elements. Unless the case for a one dimensional array, 
-	 * the list are wrapper in an array¡ªeach element is printed and separated with 
+	 * the list are wrapper in an arrayï¿½ï¿½each element is printed and separated with 
 	 * a comma and a space, and the elements are surrounded by a pair of square brackets. 
 	 * When encountering an array as one of the element, print the array as it would of 
 	 * be printed if isolated, and treat this array as a whole as one element of the 
@@ -598,7 +595,7 @@ public abstract class Array
 	 * Wrap the given primitive array object of arbitrary dimensions in an array object of the
 	 * same dimensions but of the wrapper type instead of the primitive without first checking 
 	 * if the given object is a primitive array. The returned array should be casted by the user 
-	 * if the compile time reference is significant. Warnings, if generated, should be suppressed£»
+	 * if the compile time reference is significant. Warnings, if generated, should be suppressedï¿½ï¿½
 	 * and type to be casted if necessary. This method is implemented with reflection for generality; 
 	 * if minute efficiency is demanded, with the proper knowledge of the peculiar type of the array, 
 	 * wrap that array manually. This casting provides a referential deep copy in that the most 
@@ -659,7 +656,7 @@ public abstract class Array
 	 * Wrap the given wrapper type array object of arbitrary dimensions in an array object of the
 	 * same dimensions but of the primitive type instead of the wrapper without first checking 
 	 * if the given object is a primitive array. The returned array should be casted by the user 
-	 * if the compile time reference is significant. Warnings, if generated, should be suppressed£»
+	 * if the compile time reference is significant. Warnings, if generated, should be suppressedï¿½ï¿½
 	 * and type to be casted if necessary. This method is implemented with reflection for generality; 
 	 * if minute efficiency is demanded, with the proper knowledge of the peculiar type of the array, 
 	 * wrap that array manually. 
@@ -746,6 +743,24 @@ public abstract class Array
 				else 
 					;
 		return -1;
+	}
+
+	public static Integer[] randomIntegers(Integer lowLim, Integer upLim, int size)//Generate an array of random integers with specific range and quantity.
+	{
+		Integer[] rand = new Integer[size];
+		Integer amplitude = upLim-lowLim;
+		for(int i=0; i<size; i++)
+			rand[i] = (int)(amplitude*Math.random()) + lowLim;
+		return rand;
+	}
+
+	public static Double[] randomDoubles(Double lowLim, Double upLim, int size)//Generate an array of random doubles with specific range and quantity.
+	{
+		Double[] rand = new Double[size];
+		Double amplitude = upLim-lowLim;
+		for(int i=0; i<size; i++)
+			rand[i] = amplitude*Math.random() + lowLim;
+		return rand;
 	}
 	
 	public static void main(String[] args) 
