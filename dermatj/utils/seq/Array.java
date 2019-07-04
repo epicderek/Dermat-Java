@@ -477,13 +477,14 @@ public abstract class Array
 		for(Object arr: arrs)
 			length += java.lang.reflect.Array.getLength(arr); 
 		//Create new array of the incremented length of all element arrays. 
-		Object mergedArr = java.lang.reflect.Array.newInstance(arrs[0].getClass(),length); 
+		Object mergedArr = java.lang.reflect.Array.newInstance(
+				java.lang.reflect.Array.get(arrs[0],0).getClass(),length); 
 		//The counter that iterates the indices of the newly created merged array. 
 		int counter = 0; 
 		//Iterate and fill the elements in the order appeared of the array and its elements. 
 		for(Object arr: arrs)  
 			for(int i=0; i<java.lang.reflect.Array.getLength(arr); i++)
-				java.lang.reflect.Array.set(arr,counter++,java.lang.reflect.Array.get(arr,i)); 
+				java.lang.reflect.Array.set(mergedArr,counter++,java.lang.reflect.Array.get(arr,i));
 		return mergedArr; 			
 	}
 	

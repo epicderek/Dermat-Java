@@ -65,19 +65,19 @@ public abstract class Strings
 		for(int i=0; i<length; i++)
 			switch(fo)
 			{
-			case UPPER: BUILDER.append(RAND.nextInt(UPPERCASE.length)); break; 
-			case LOWER: BUILDER.append(RAND.nextInt(LOWERCASE.length)); break;
-			case NUM: BUILDER.append(RAND.nextInt(NUMS.length)); break;
-			case CHAR: BUILDER.append(RAND.nextInt(CHARS.length)); break;
-			case CHARNUM: BUILDER.append(RAND.nextInt(CHARNUMS.length)); break;
-			case MIXED: BUILDER.append(RAND.nextInt(ALL.length)); break; 
+			case UPPER: BUILDER.append(UPPERCASE[RAND.nextInt(UPPERCASE.length)]); break; 
+			case LOWER: BUILDER.append(LOWERCASE[RAND.nextInt(LOWERCASE.length)]); break;
+			case NUM: BUILDER.append(NUMS[RAND.nextInt(NUMS.length)]); break;
+			case CHAR: BUILDER.append(CHARS[RAND.nextInt(CHARS.length)]); break;
+			case CHARNUM: BUILDER.append(CHARNUMS[RAND.nextInt(CHARNUMS.length)]); break;
+			case MIXED: BUILDER.append(ALL[RAND.nextInt(ALL.length)]); break; 
 			}
 		return BUILDER.toString(); 
 	}
 	
 	public static void main(String[] args) 
 	{
-		
+		Array.print(random(10,Format.MIXED));
 	}
 
 }
